@@ -1,4 +1,3 @@
-
 def knotHash(input_data):
     data = [ord(x) for x in input_data]
     data.append(17)
@@ -36,12 +35,43 @@ def knotHash(input_data):
 
     return formatted_dense_hash
 
+def bfs(graph, loc_x, loc_y):
+    graph[loc_y][loc_x] = "."
+    #Check up
+    if loc_y > 0:
+        if graph[loc_y-1][loc_x] == "#":
+            graph = bfs(graph, loc_x, loc_y-1)
+    #Check Right
+    if loc_x < 127:
+        if graph[loc_y][loc_x+1]== "#":
+            graph = bfs(graph, loc_x+1, loc_y)
+    #Check Down
+    if loc_y < 127:
+        if graph[loc_y+1][loc_x]== "#":
+            graph = bfs(graph, loc_x, loc_y+1)
+    #Check Left
+    if loc_x > 0:
+        if graph[loc_y][loc_x-1]== "#":
+            graph = bfs(graph, loc_x-1, loc_y)
+
+    return graph
+
 def main():
     disk = []
+    
+    #create graph
     for i in range(128):
         hash_seq = knotHash("uugsqrei-"+str(i))
-        test = bin(int(hash_seq, 16))[2:].zfill(128).replace('1',"#").replace("0",".")
-        print(test)
-        disk.append(test)
-    print(usage)
+        row = list(bin(int(hash_seq, 16))[2:].zfill(128).replace('1',"#").replace("0","."))
+        disk.append(row)
+    
+    print("Finding Segments")
+    #Search Graph
+    segments = 0
+    for y in range(128):
+        for x in range(128):
+            if (disk[y][x] == "#"):
+                disk = bfs(disk, x, y)
+                segments+=1
+    print("Total number of segments:",segments)
 main()
